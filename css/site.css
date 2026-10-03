@@ -671,4 +671,9 @@ input:focus, textarea:focus, select:focus { outline: none; border-color: var(--i
   .chat-fab { width: 54px; height: 54px; right: 16px; bottom: 16px; }
   .chat-fab .lbl { display: none; }
   .chat-panel { left: 12px; right: 12px; bottom: 12px; width: auto; height: min(520px, 72dvh); border-radius: 24px; }
+  /* While typing: fill the visible area above the keyboard */
+  .chat-panel.kb { top: calc(var(--vv-top, 0px) + 8px); bottom: auto; height: calc(var(--vv-h, 100dvh) - 16px); transition: opacity .3s var(--ease), transform .45s var(--ease), visibility 0s; }
+  .chat-panel.kb .chat-top { padding-block: 10px 8px; }
+  /* 16px text stops iPhones zooming in when the box is tapped */
+  .chat-input textarea { font-size: 16px; }
 }

@@ -76,6 +76,22 @@
     history.forEach((m) => (m.role === 'user' ? addUser(m.content, false) : addBot(m.content, false)));
   }
 
+  // ---------- phones: keep the chat inside the part of the screen above the keyboard ----------
+  const touch = window.matchMedia('(pointer: coarse)').matches;
+  const small = window.matchMedia('(max-width: 640px)');
+  const vv = window.visualViewport;
+  function fit() {
+    const typing = small.matches && document.activeElement === input;
+    panel.classList.toggle('kb', !!(typing && vv));
+    if (!typing || !vv) return;
+    panel.style.setProperty('--vv-top', vv.offsetTop + 'px');
+    panel.style.setProperty('--vv-h', vv.height + 'px');
+    scrollDown(false);
+  }
+  if (vv) { vv.addEventListener('resize', fit); vv.addEventListener('scroll', fit); }
+  input.addEventListener('focus', () => { fit(); setTimeout(fit, 300); });
+  input.addEventListener('blur', () => setTimeout(fit, 50));
+
   // ---------- orbs: the button's orb runs while closed, the header's while open ----------
   const [fabOrbEl, headOrbEl] = [fab.querySelector('[data-orb]'), panel.querySelector('[data-orb]')];
   const mountOrb = (el) => (el && window.LiveOrb ? window.LiveOrb.mount(el) : { pause() {}, resume() {} });
@@ -98,7 +114,7 @@
     document.documentElement.classList.add('chat-open');
     restore();
     requestAnimationFrame(() => scrollDown(false));
-    setTimeout(() => input.focus({ preventScroll: true }), 250);
+    if (!touch) setTimeout(() => input.focus({ preventScroll: true }), 250); // no surprise keyboard on phones
   }
   function close() {
     panel.classList.remove('open');
@@ -111,7 +127,7 @@
   }
   fab.addEventListener('click', open);
   $('chatClose').addEventListener('click', close);
-  $('chatReset').addEventListener('click', () => { history = []; save(); restore(); input.focus(); });
+  $('chatReset').addEventListener('click', () => { history = []; save(); restore(); if (!touch) input.focus(); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && panel.classList.contains('open')) close(); });
 
   // ---------- input ----------
@@ -156,6 +172,6 @@
     busy = false; grow();
     // scroll so the start of the answer is visible
     body.scrollTo({ top: Math.max(0, el.offsetTop - 12), behavior: 'smooth' });
-    input.focus({ preventScroll: true });
+    if (!touch) input.focus({ preventScroll: true });
   }
 })();
