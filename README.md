@@ -9,7 +9,8 @@ A preview of the redesigned website for **Christos Mar Thoma Church, Kakkanad**,
 - **Calm, photo-led layout:** full-width parish photographs, serif headings, thin lines and numbered sections on every page.
 - **Easy to find your way:** smooth drop-down menus on desktop, a full-screen menu on phones, a sub-menu for each section, and Previous / Next links between pages.
 - **Parish Assistant:** a small chat assistant (the black orb at the bottom right) that answers questions about service times, events, clergy, committee members, prayer groups and more.
-- **Works on any screen:** phones, tablets and desktops.
+- **Newsletters as books:** every newsletter, download and the vicar's message opens as an interactive page-turning book. Swipe, tap or use the arrow keys; phones show one page at a time, and Zoom shows small print up close.
+- **Works on any screen:** small phones (320px) up to large desktops.
 
 ## Pages
 
@@ -28,7 +29,7 @@ This is a static copy of the website, made only to show the design. On the full 
 - church staff update everything (events, notices, photos, newsletters…) from an **admin panel**, without touching code;
 - the **contact form** delivers messages to the church office (in the demo it only shows a notice);
 - the assistant can also use **Claude AI** for smarter answers (the demo uses its built-in answers);
-- every photo, newsletter PDF and download is available (the demo shows up to 8 photos per album and leaves out large files).
+- every photo is available (the demo shows up to 8 photos per album), and books are drawn straight from the original PDFs with a Download button (the demo uses page images instead).
 
 ## Viewing it
 
