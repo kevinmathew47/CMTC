@@ -71,6 +71,30 @@
     setInterval(tick, 30000);
   }
 
+  // ---- Drawer sections: smooth open / close ----
+  const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('.drawer details').forEach((d) => {
+    const summary = d.querySelector('summary');
+    const panel = d.querySelector('div');
+    if (!summary || !panel || calm || !panel.animate) return;
+    summary.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (d.dataset.busy) return;
+      d.dataset.busy = '1';
+      const opening = !d.open;
+      if (opening) d.open = true;
+      const h = panel.scrollHeight;
+      const anim = panel.animate(
+        opening ? [{ height: '0px', opacity: 0 }, { height: h + 'px', opacity: 1 }] : [{ height: h + 'px', opacity: 1 }, { height: '0px', opacity: 0 }],
+        { duration: 380, easing: 'cubic-bezier(.22,.61,.36,1)' }
+      );
+      let done = false;
+      const finish = () => { if (done) return; done = true; anim.cancel(); if (!opening) d.open = false; delete d.dataset.busy; };
+      anim.onfinish = finish;
+      setTimeout(finish, 450); // never leave the menu half-open if animations are paused
+    });
+  });
+
   // ---- Reveal on scroll ----
   const els = document.querySelectorAll('.reveal');
   if ('IntersectionObserver' in window) {

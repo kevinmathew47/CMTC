@@ -1,7 +1,7 @@
 (function () {
   const $ = (id) => document.getElementById(id);
   const fab = $('chatFab'), panel = $('chatPanel'), log = $('chatLog'), body = $('chatBody');
-  const welcome = $('chatWelcome'), form = $('chatForm'), input = $('chatInput'), send = $('chatSend'), teaser = $('chatTeaser');
+  const welcome = $('chatWelcome'), form = $('chatForm'), input = $('chatInput'), send = $('chatSend');
   if (!fab || !panel) return;
 
   const KEY = 'cmtc-chat-v2';
@@ -46,7 +46,7 @@
   function addBot(text, animate = true, suggestions = []) {
     const el = document.createElement('div');
     el.className = 'm bot';
-    el.innerHTML = `<img class="m-av" src="${window.CHAT_LOGO}" alt=""><div class="m-text">${md(text)}</div>`;
+    el.innerHTML = `<div class="m-text">${md(text)}</div>`;
     log.appendChild(el);
     if (animate) {
       // reveal each paragraph / list item in turn
@@ -65,7 +65,7 @@
   function typing() {
     const el = document.createElement('div');
     el.className = 'm bot typing-row anim';
-    el.innerHTML = `<img class="m-av" src="${window.CHAT_LOGO}" alt=""><div class="typing"><span></span><span></span><span></span></div>`;
+    el.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
     log.appendChild(el);
     return el;
   }
@@ -76,13 +76,25 @@
     history.forEach((m) => (m.role === 'user' ? addUser(m.content, false) : addBot(m.content, false)));
   }
 
+  // ---------- orbs: the button's orb runs while closed, the header's while open ----------
+  const [fabOrbEl, headOrbEl] = [fab.querySelector('[data-orb]'), panel.querySelector('[data-orb]')];
+  const mountOrb = (el) => (el && window.LiveOrb ? window.LiveOrb.mount(el) : { pause() {}, resume() {} });
+  const fabOrb = mountOrb(fabOrbEl), headOrb = mountOrb(headOrbEl);
+  const setOrbs = (isOpen) => {
+    if (headOrbEl) headOrbEl.dataset.paused = isOpen ? '' : '1';
+    if (fabOrbEl) fabOrbEl.dataset.paused = isOpen ? '1' : '';
+    (isOpen ? headOrb : fabOrb).resume();
+    (isOpen ? fabOrb : headOrb).pause();
+  };
+  setOrbs(false);
+
   // ---------- open / close ----------
   function open() {
     panel.classList.add('open');
     panel.setAttribute('aria-hidden', 'false');
     fab.setAttribute('aria-expanded', 'true');
     fab.classList.add('hide');
-    teaser.hidden = true;
+    setOrbs(true);
     document.documentElement.classList.add('chat-open');
     restore();
     requestAnimationFrame(() => scrollDown(false));
@@ -93,6 +105,7 @@
     panel.setAttribute('aria-hidden', 'true');
     fab.setAttribute('aria-expanded', 'false');
     fab.classList.remove('hide');
+    setOrbs(false);
     document.documentElement.classList.remove('chat-open');
     fab.focus({ preventScroll: true });
   }
@@ -100,10 +113,6 @@
   $('chatClose').addEventListener('click', close);
   $('chatReset').addEventListener('click', () => { history = []; save(); restore(); input.focus(); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && panel.classList.contains('open')) close(); });
-  teaser.addEventListener('click', (e) => { if (e.target.closest('.x')) { teaser.hidden = true; try { sessionStorage.setItem('cmtc-teaser', '1'); } catch (x) {} } else open(); });
-  let teased = false;
-  try { teased = !!sessionStorage.getItem('cmtc-teaser'); } catch (e) {}
-  if (!teased && !history.length) setTimeout(() => { if (!panel.classList.contains('open')) teaser.hidden = false; }, 7000);
 
   // ---------- input ----------
   const grow = () => { input.style.height = 'auto'; input.style.height = Math.min(input.scrollHeight, 130) + 'px'; send.disabled = busy || !input.value.trim(); };
@@ -111,7 +120,7 @@
   input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); form.requestSubmit(); } });
   form.addEventListener('submit', (e) => { e.preventDefault(); ask(input.value); });
   panel.addEventListener('click', (e) => {
-    const b = e.target.closest('.cw-list button, .m-sugg button');
+    const b = e.target.closest('.cw-chips button, .m-sugg button');
     if (b) ask(b.dataset.q || b.textContent);
   });
 
